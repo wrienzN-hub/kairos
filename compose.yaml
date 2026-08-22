@@ -1,0 +1,60 @@
+name: kairos
+
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${KAIROS_DB_NAME:-kairos}
+      POSTGRES_USER: ${KAIROS_DB_USER:-kairos}
+      POSTGRES_PASSWORD: ${KAIROS_DB_PASSWORD:?Copy .env.example to .env and set KAIROS_DB_PASSWORD}
+    ports:
+      - "${KAIROS_DB_PORT:-5432}:5432"
+    volumes:
+      - kairos-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/backend.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Kairos: Host=database;Port=5432;Database=${KAIROS_DB_NAME:-kairos};Username=${KAIROS_DB_USER:-kairos};Password=${KAIROS_DB_PASSWORD}
+      Database__ApplyMigrationsOnStartup: "true"
+    ports:
+      - "${KAIROS_API_PORT:-8080}:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/frontend.Dockerfile
+    ports:
+      - "${KAIROS_WEB_PORT:-5173}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  kairos-postgres-data:

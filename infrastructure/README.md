@@ -1,8 +1,9 @@
 # Infrastructure
 
-Local and deployment infrastructure belongs here, including Docker Compose,
-container definitions, database initialization, observability configuration,
-and later deployment manifests.
+The root `compose.yaml` starts PostgreSQL, the ASP.NET Core API, and the React
+web application. Container definitions and the Nginx SPA/proxy configuration
+are in `infrastructure/docker`.
 
 No secrets or persistent local data may be committed.
 
+See [the development guide](../docs/DEVELOPMENT.md) for every supported command.

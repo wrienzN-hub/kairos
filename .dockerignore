@@ -1,0 +1,14 @@
+.git
+.github
+.dotnet
+.dotnet_home
+.env
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/coverage
+TestResults
+docs
+*.user
+*.log

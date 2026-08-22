@@ -1,5 +1,7 @@
 using Kairos.Api.Configuration;
+using Kairos.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,9 +14,21 @@ builder.Services
         $"{KairosOptions.SectionName}:ProductName must not be empty.")
     .ValidateOnStart();
 
+var connectionString = builder.Configuration.GetConnectionString("Kairos")
+    ?? throw new InvalidOperationException(
+        "ConnectionStrings:Kairos must be configured.");
+
+builder.Services.AddKairosInfrastructure(connectionString);
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+if (builder.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<KairosDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
 
 app.MapGet(
     "/",
