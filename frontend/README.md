@@ -1,7 +1,19 @@
-# Frontend
+# Kairos frontend
 
-The responsive React web application belongs here. It will expose the “Today”
-dashboard, activity views, four-week plan, goals, timeline, and coach dialog.
+Responsive React and TypeScript web application. The first route is `/today`
+and provides the stable shell for the athlete's daily coaching view.
 
-The application is created in its dedicated frontend bootstrap ticket.
+## Commands
 
+```powershell
+npm.cmd install
+npm.cmd run dev
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd test
+npm.cmd run build
+```
+
+The Vite development server defaults to `http://localhost:5173`. No runtime
+secret belongs in the frontend bundle; only explicitly public `VITE_*` values
+may be supplied at build time.
