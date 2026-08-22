@@ -1,0 +1,47 @@
+name: Feature
+description: Implement a scoped, testable Kairos capability
+title: "[FEATURE] "
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal and user value
+      description: What outcome should this issue deliver, and for whom?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: List the work that belongs in this issue.
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+      description: State what is deliberately deferred.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Use a checklist with observable results.
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Tests, commands, screenshots, or reference data needed for acceptance.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and references
+      description: Link blocking issues and relevant Lastenheft sections.
+
