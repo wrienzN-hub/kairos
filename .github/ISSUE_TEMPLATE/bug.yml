@@ -1,0 +1,38 @@
+name: Bug
+description: Report reproducible incorrect Kairos behavior
+title: "[BUG] "
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact and affected data
+      description: Do not include secrets, health data, or identifiable production data.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Regression verification
+
