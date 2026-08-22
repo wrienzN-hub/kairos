@@ -23,21 +23,21 @@ Application projects and runtime dependencies are introduced by their dedicated
 backlog tickets. This keeps the repository foundation reviewable and avoids
 mixing project organization with framework bootstrap decisions.
 
-## Backend quick start
+## Quick start with Docker
 
-The repository pins .NET SDK 10.0.400 through `global.json`. From the repository
-root:
+From the repository root in PowerShell:
 
 ```powershell
-dotnet restore Kairos.sln
-dotnet build Kairos.sln --configuration Release --no-restore
-dotnet test Kairos.sln --configuration Release --no-build
-dotnet run --project backend/src/Kairos.Api
+Copy-Item .env.example .env
+docker compose up --build
 ```
 
-The API readiness endpoint is available at `GET /health`. Runtime configuration
-uses the `Kairos` section; required values are validated during application
-startup.
+Then open `http://localhost:5173/today`. The API is available at
+`http://localhost:8080`, and its health endpoint at
+`http://localhost:8080/health`.
+
+All local setup, Docker, migration, test, build, and troubleshooting commands are
+documented in [Development guide](docs/DEVELOPMENT.md).
 
 ## Product documentation
 
@@ -45,10 +45,12 @@ startup.
 - [Implementation backlog](docs/backlog/README.md)
 - [Project context](docs/PROJECT_CONTEXT.md)
 - [Architecture decisions](docs/adr/README.md)
+- [Development and command guide](docs/DEVELOPMENT.md)
 
 ## Current development focus
 
-The current foundation provides the ASP.NET Core API and its automated tests.
+The current foundation provides the React application, ASP.NET Core API,
+PostgreSQL persistence, Docker environment, and automated tests.
 The first vertical product slice imports a cycling FIT file, preserves its
 provenance, stores normalized activity data, and displays an accessible activity
 detail view. A small, validated training analysis follows on top of that data.
