@@ -1,5 +1,6 @@
 # Backend tests
 
-Backend unit, integration, architecture, and acceptance test projects belong
-here. Test projects should mirror the production boundaries they verify.
-
+`Kairos.UnitTests` verifies isolated domain/application behavior and dependency
+direction. `Kairos.IntegrationTests` starts the real API host in memory to verify
+HTTP behavior and startup configuration. Future architecture and acceptance
+tests should continue to mirror the production boundaries they verify.

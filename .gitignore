@@ -5,6 +5,8 @@
 secrets/
 
 # .NET
+.dotnet/
+.dotnet_home/
 **/bin/
 **/obj/
 TestResults/
@@ -36,4 +38,3 @@ docker-compose.override.yml
 tmp/
 temp/
 *.log
-

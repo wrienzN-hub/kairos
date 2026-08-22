@@ -23,6 +23,22 @@ Application projects and runtime dependencies are introduced by their dedicated
 backlog tickets. This keeps the repository foundation reviewable and avoids
 mixing project organization with framework bootstrap decisions.
 
+## Backend quick start
+
+The repository pins .NET SDK 10.0.400 through `global.json`. From the repository
+root:
+
+```powershell
+dotnet restore Kairos.sln
+dotnet build Kairos.sln --configuration Release --no-restore
+dotnet test Kairos.sln --configuration Release --no-build
+dotnet run --project backend/src/Kairos.Api
+```
+
+The API readiness endpoint is available at `GET /health`. Runtime configuration
+uses the `Kairos` section; required values are validated during application
+startup.
+
 ## Product documentation
 
 - [Lastenheft](docs/lastenheft/README.md)
@@ -32,6 +48,7 @@ mixing project organization with framework bootstrap decisions.
 
 ## Current development focus
 
+The current foundation provides the ASP.NET Core API and its automated tests.
 The first vertical product slice imports a cycling FIT file, preserves its
 provenance, stores normalized activity data, and displays an accessible activity
 detail view. A small, validated training analysis follows on top of that data.
