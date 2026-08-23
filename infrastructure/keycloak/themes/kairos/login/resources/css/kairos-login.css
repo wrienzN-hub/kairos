@@ -289,6 +289,31 @@ input[type="submit"]:hover {
   display: none !important;
 }
 
+#kc-form-login > .pf-v5-c-form__group:last-child,
+#kc-form-login > .pf-v5-c-form__group:last-child .pf-v5-c-form__actions {
+  display: block !important;
+  width: 100% !important;
+  height: 3rem !important;
+  min-height: 3rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: visible !important;
+  box-shadow: none !important;
+}
+
+#kc-form-login > .pf-v5-c-form__group:last-child::before,
+#kc-form-login > .pf-v5-c-form__group:last-child::after,
+#kc-form-login
+  > .pf-v5-c-form__group:last-child
+  .pf-v5-c-form__actions::before,
+#kc-form-login
+  > .pf-v5-c-form__group:last-child
+  .pf-v5-c-form__actions::after {
+  content: none !important;
+  display: none !important;
+}
+
 a,
 .pf-v5-c-button.pf-m-link {
   color: var(--kairos-forest-light) !important;
