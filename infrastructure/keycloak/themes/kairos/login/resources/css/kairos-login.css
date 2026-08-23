@@ -302,6 +302,22 @@ input[type="submit"]:hover {
   box-shadow: none !important;
 }
 
+#kc-form-login > .pf-v5-c-form__group:last-child .pf-v5-c-form__actions {
+  overflow: visible !important;
+  border-radius: 0.8rem !important;
+  background: var(--kairos-forest) !important;
+}
+
+#kc-form-login > .pf-v5-c-form__group:last-child .pf-v5-c-form__actions:hover {
+  background: var(--kairos-forest-light) !important;
+}
+
+#kc-login,
+#kc-login:hover {
+  border-radius: inherit !important;
+  background: transparent !important;
+}
+
 #kc-form-login > .pf-v5-c-form__group:last-child::before,
 #kc-form-login > .pf-v5-c-form__group:last-child::after,
 #kc-form-login
