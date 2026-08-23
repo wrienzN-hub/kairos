@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "generator": "tools/fit-fixtures/generate_fit_fixtures.py",
+  "fit_protocol_version": "2.0",
+  "fit_profile_version": "21.205",
+  "protocol_reference": "https://developer.garmin.com/fit/protocol/",
+  "data_policy": "All fixtures are deterministic synthetic data created for Kairos; no athlete or device recording was used.",
+  "fixtures": [
+    {
+      "id": "valid-cycling",
+      "file": "valid-cycling.fit",
+      "classification": "valid",
+      "description": "Vollständige synthetische Radaktivität mit üblichen Messreihen.",
+      "provenance": "synthetic-kairos-generator",
+      "integrity_expected": true,
+      "parse_expected": true,
+      "start_time_utc": "2026-01-15T06:00:00Z",
+      "end_time_utc": "2026-01-15T06:30:00Z",
+      "duration_seconds": 1800,
+      "distance_meters": 10000,
+      "available_streams": [
+        "timestamp",
+        "position",
+        "altitude",
+        "distance",
+        "speed",
+        "heart_rate",
+        "cadence",
+        "power",
+        "temperature"
+      ],
+      "laps": [
+        {
+          "index": 0,
+          "start_time_utc": "2026-01-15T06:00:00Z",
+          "end_time_utc": "2026-01-15T06:30:00Z",
+          "duration_seconds": 1800,
+          "distance_meters": 10000
+        }
+      ],
+      "expected_failure": null,
+      "size_bytes": 358,
+      "sha256": "0bfbb06bf86f990989b18257e6ca64316a228f9e9019cc0e87697e6e8ea113cd"
+    },
+    {
+      "id": "minimal-cycling",
+      "file": "minimal-cycling.fit",
+      "classification": "minimal",
+      "description": "Kleinste unterstützte Radaktivität mit Zeit- und Distanzdaten.",
+      "provenance": "synthetic-kairos-generator",
+      "integrity_expected": true,
+      "parse_expected": true,
+      "start_time_utc": "2026-01-16T12:00:00Z",
+      "end_time_utc": "2026-01-16T12:05:00Z",
+      "duration_seconds": 300,
+      "distance_meters": 1000,
+      "available_streams": [
+        "timestamp",
+        "distance"
+      ],
+      "laps": [
+        {
+          "index": 0,
+          "start_time_utc": "2026-01-16T12:00:00Z",
+          "end_time_utc": "2026-01-16T12:05:00Z",
+          "duration_seconds": 300,
+          "distance_meters": 1000
+        }
+      ],
+      "expected_failure": null,
+      "size_bytes": 248,
+      "sha256": "576c8c92593931138ec3f11ac38c0635f05afafc5b56df4e591a0fbd468bc4ca"
+    },
+    {
+      "id": "interval-cycling",
+      "file": "interval-cycling.fit",
+      "classification": "interval",
+      "description": "Radaktivität mit zwei synthetischen Intervallen beziehungsweise Laps.",
+      "provenance": "synthetic-kairos-generator",
+      "integrity_expected": true,
+      "parse_expected": true,
+      "start_time_utc": "2026-01-17T09:00:00Z",
+      "end_time_utc": "2026-01-17T09:20:00Z",
+      "duration_seconds": 1200,
+      "distance_meters": 8000,
+      "available_streams": [
+        "timestamp",
+        "distance",
+        "speed",
+        "heart_rate",
+        "cadence",
+        "power"
+      ],
+      "laps": [
+        {
+          "index": 0,
+          "start_time_utc": "2026-01-17T09:00:00Z",
+          "end_time_utc": "2026-01-17T09:10:00Z",
+          "duration_seconds": 600,
+          "distance_meters": 3500
+        },
+        {
+          "index": 1,
+          "start_time_utc": "2026-01-17T09:10:00Z",
+          "end_time_utc": "2026-01-17T09:20:00Z",
+          "duration_seconds": 600,
+          "distance_meters": 4500
+        }
+      ],
+      "expected_failure": null,
+      "size_bytes": 340,
+      "sha256": "77a7de74f143508d4527908660c503554d37974d3b9cfbe4a83d2a7d1a9da6a9"
+    },
+    {
+      "id": "incomplete-cycling",
+      "file": "incomplete-cycling.fit",
+      "classification": "incomplete",
+      "description": "Strukturell gültige Aktivität ohne Distanz, GPS, Leistung und Trittfrequenz.",
+      "provenance": "synthetic-kairos-generator",
+      "integrity_expected": true,
+      "parse_expected": true,
+      "start_time_utc": "2026-01-18T07:30:00Z",
+      "end_time_utc": "2026-01-18T07:45:00Z",
+      "duration_seconds": 900,
+      "distance_meters": null,
+      "available_streams": [
+        "timestamp",
+        "heart_rate"
+      ],
+      "laps": [
+        {
+          "index": 0,
+          "start_time_utc": "2026-01-18T07:30:00Z",
+          "end_time_utc": "2026-01-18T07:45:00Z",
+          "duration_seconds": 900,
+          "distance_meters": null
+        }
+      ],
+      "expected_failure": null,
+      "size_bytes": 234,
+      "sha256": "3e5e2aa5861ba5af6f92bd49dcf602f48d95e2f6842014a901da326453e67551"
+    },
+    {
+      "id": "corrupted-crc",
+      "file": "corrupted-crc.fit",
+      "classification": "corrupted",
+      "description": "Von valid-cycling abgeleitete Datei mit absichtlich ungültiger CRC.",
+      "provenance": "synthetic-kairos-generator",
+      "derived_from": "valid-cycling",
+      "integrity_expected": false,
+      "parse_expected": false,
+      "start_time_utc": null,
+      "end_time_utc": null,
+      "duration_seconds": null,
+      "distance_meters": null,
+      "available_streams": [],
+      "laps": [],
+      "expected_failure": "crc_mismatch",
+      "size_bytes": 358,
+      "sha256": "68a50badcfc8a6e1eaf3145879c84968d31211358925354b8cfcd4214c29726f"
+    }
+  ]
+}
