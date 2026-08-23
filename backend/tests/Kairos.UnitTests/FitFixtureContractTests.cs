@@ -41,6 +41,29 @@ public sealed class FitFixtureContractTests
             Assert.True(fixture.TryGetProperty("distance_meters", out _));
             Assert.Equal(JsonValueKind.Array, fixture.GetProperty("available_streams").ValueKind);
         }
+
+        var withoutPowerMeter = fixtures.Single(fixture =>
+            fixture.GetProperty("id").GetString() == "incomplete-cycling"
+        );
+        var availableStreams = withoutPowerMeter
+            .GetProperty("available_streams")
+            .EnumerateArray()
+            .Select(stream => stream.GetString()!)
+            .ToArray();
+        Assert.Equal(
+            [
+                "timestamp",
+                "position",
+                "altitude",
+                "distance",
+                "speed",
+                "heart_rate",
+                "temperature",
+            ],
+            availableStreams
+        );
+        Assert.DoesNotContain("cadence", availableStreams);
+        Assert.DoesNotContain("power", availableStreams);
     }
 
     [Fact]

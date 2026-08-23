@@ -17,13 +17,19 @@ der Wert fehlt und von einem späteren Parser nicht erfunden werden darf.
 | `valid-cycling.fit` | vollständige Radaktivität | 2026-01-15 06:00 | 1.800 s | 10.000 m | Zeit, Position, Höhe, Distanz, Geschwindigkeit, Herzfrequenz, Trittfrequenz, Leistung, Temperatur |
 | `minimal-cycling.fit` | kleinster unterstützter Fall | 2026-01-16 12:00 | 300 s | 1.000 m | Zeit, Distanz |
 | `interval-cycling.fit` | zwei prüfbare Laps/Intervalle | 2026-01-17 09:00 | 1.200 s | 8.000 m | Zeit, Distanz, Geschwindigkeit, Herzfrequenz, Trittfrequenz, Leistung |
-| `incomplete-cycling.fit` | gültig, aber wesentliche Daten fehlen | 2026-01-18 07:30 | 900 s | fehlt | Zeit, Herzfrequenz |
+| `incomplete-cycling.fit` | Fahrt ohne Wattpedale und Trittfrequenzsensor | 2026-01-18 07:30 | 900 s | 4.500 m | Zeit, Position, Höhe, Distanz, Geschwindigkeit, Herzfrequenz, Temperatur |
 | `corrupted-crc.fit` | verständlich abzulehnender Fehlerfall | – | – | – | keine, Import muss vor Auswertung scheitern |
 
 Beim Intervallfall dauert jeder Lap 600 Sekunden. Der erste Lap umfasst 3.500 m,
 der zweite 4.500 m. Der beschädigte Fall ist von `valid-cycling.fit` abgeleitet,
 enthält absichtlich eine unpassende Datei-CRC und erwartet den Fehlercode
 `crc_mismatch`.
+
+Der unvollständige Fall bildet bewusst eine normale Fahrt ohne Wattpedale und
+ohne Trittfrequenzsensor ab. `power` und `cadence` fehlen vollständig; sie sind
+nicht als Nullwerte kodiert. Alle übrigen typischen Aufzeichnungsdaten bleiben
+vorhanden, damit ein späterer Import diesen realistischen Fall akzeptiert und
+die beiden fehlenden Messreihen lediglich als „nicht verfügbar“ kennzeichnet.
 
 ## Reproduzierbarkeit
 
