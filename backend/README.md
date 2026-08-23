@@ -19,6 +19,9 @@ backend/
 Dependencies point inward: API and Infrastructure depend on Application, while
 Application depends on Domain. Domain has no project dependency.
 
+The vendor-neutral activity aggregate and its invariants are documented in
+[`docs/domain/activity-domain-model.md`](../docs/domain/activity-domain-model.md).
+
 ## Commands
 
 Run these commands from the repository root with the SDK pinned in
