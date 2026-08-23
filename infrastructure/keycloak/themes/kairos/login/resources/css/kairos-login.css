@@ -166,6 +166,14 @@ input:focus,
   background: transparent !important;
 }
 
+.pf-v5-c-input-group .pf-v5-c-form-control:focus-within {
+  box-shadow: none !important;
+}
+
+.pf-v5-c-input-group:focus-within {
+  box-shadow: 0 0 0 3px rgb(36 88 65 / 18%) !important;
+}
+
 .pf-v5-c-input-group__item,
 .pf-v5-c-input-group__item::before,
 .pf-v5-c-input-group__item::after {
@@ -197,9 +205,11 @@ input:focus,
 
 #kc-login {
   display: flex;
+  overflow: hidden;
   align-items: center;
   justify-content: center;
   padding: 0.75rem 1rem;
+  appearance: none;
   line-height: 1.2;
 }
 
