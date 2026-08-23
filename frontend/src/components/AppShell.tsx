@@ -1,5 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 
+import { AccountControls } from "./AccountControls";
+
 export function AppShell() {
   return (
     <div className="app-shell">
@@ -10,9 +12,12 @@ export function AppShell() {
           </span>
           <span>Kairos</span>
         </NavLink>
-        <nav aria-label="Hauptnavigation">
-          <NavLink to="/today">Heute</NavLink>
-        </nav>
+        <div className="topbar-actions">
+          <nav aria-label="Hauptnavigation">
+            <NavLink to="/today">Heute</NavLink>
+          </nav>
+          <AccountControls />
+        </div>
       </header>
       <Outlet />
     </div>

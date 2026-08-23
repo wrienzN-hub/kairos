@@ -7,6 +7,7 @@ Architecture decisions are stored here as numbered Markdown files:
 - [0003 – React, TypeScript, and Vite](0003-react-typescript-vite.md)
 - [0004 – PostgreSQL and EF Core](0004-postgresql-and-ef-core.md)
 - [0005 – Monorepo organization](0005-monorepo-organization.md)
+- [0006 – Keycloak identity broker](0006-keycloak-identity-broker.md)
 
 Each ADR records:
 

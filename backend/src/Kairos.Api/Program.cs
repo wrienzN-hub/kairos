@@ -1,8 +1,12 @@
+using Kairos.Api.Authentication;
 using Kairos.Api.Configuration;
 using Kairos.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +17,44 @@ builder.Services
         options => !string.IsNullOrWhiteSpace(options.ProductName),
         $"{KairosOptions.SectionName}:ProductName must not be empty.")
     .ValidateOnStart();
+
+var authentication = builder.Configuration
+    .GetRequiredSection(AuthenticationOptions.SectionName)
+    .Get<AuthenticationOptions>()
+    ?? throw new InvalidOperationException(
+        $"{AuthenticationOptions.SectionName} configuration is required.");
+
+if (string.IsNullOrWhiteSpace(authentication.Authority)
+    || string.IsNullOrWhiteSpace(authentication.Audience))
+{
+    throw new InvalidOperationException(
+        "Authentication:Authority and Authentication:Audience must be configured.");
+}
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = authentication.Authority;
+        options.Audience = authentication.Audience;
+        options.RequireHttpsMetadata = authentication.RequireHttpsMetadata;
+        options.MapInboundClaims = false;
+        if (!string.IsNullOrWhiteSpace(authentication.BackchannelAuthority))
+        {
+            options.BackchannelHttpHandler = new AuthorityRewriteHandler(
+                new Uri(authentication.Authority),
+                new Uri(authentication.BackchannelAuthority));
+        }
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            NameClaimType = "name",
+            RoleClaimType = "roles",
+            ValidIssuer = string.IsNullOrWhiteSpace(authentication.ValidIssuer)
+                ? authentication.Authority
+                : authentication.ValidIssuer,
+        };
+    });
+builder.Services.AddAuthorization();
 
 var connectionString = builder.Configuration.GetConnectionString("Kairos")
     ?? throw new InvalidOperationException(
@@ -30,6 +72,9 @@ if (builder.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
     await dbContext.Database.MigrateAsync();
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapGet(
     "/",
     (IOptions<KairosOptions> options) => Results.Ok(new
@@ -37,6 +82,16 @@ app.MapGet(
         service = options.Value.ProductName,
         status = "running",
     }));
+
+app.MapGet(
+        "/api/me",
+        (ClaimsPrincipal user) => Results.Ok(new
+        {
+            id = user.FindFirstValue("sub"),
+            name = user.FindFirstValue("name"),
+            email = user.FindFirstValue("email"),
+        }))
+    .RequireAuthorization();
 
 app.MapHealthChecks("/health", new HealthCheckOptions
 {

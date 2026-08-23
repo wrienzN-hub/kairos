@@ -243,3 +243,22 @@ unbounded input.
 
 **Depends on:** B5, B7.
 
+## Epic C – Identität und Athletenkonto
+
+**Goal:** Provide secure, provider-independent user identities before personal
+training data is implemented.
+
+### C1 – Benutzerverwaltung mit Keycloak und Google-Anmeldung
+
+**Goal:** Register and authenticate athletes through Keycloak, including Google
+as an external identity provider, and protect personal API endpoints.
+
+**Acceptance criteria:**
+
+- [ ] Local registration, login, session restoration, and logout work.
+- [ ] Google login is brokered through Keycloak without exposing secrets to the frontend.
+- [ ] The SPA uses Authorization Code Flow with PKCE and does not persist tokens.
+- [ ] The API validates issuer and audience and rejects anonymous access to `/api/me`.
+- [ ] Docker, automated tests, and setup documentation cover the identity flow.
+
+**Depends on:** A2, A3, A5.
