@@ -314,7 +314,7 @@ input[type="submit"]:hover {
 
 #kc-login,
 #kc-login:hover {
-  border-bottom: 1px solid transparent !important;
+  border-bottom: 1px solid #0d251b !important;
   border-radius: inherit !important;
   background: transparent !important;
 }
