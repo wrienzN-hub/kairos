@@ -39,9 +39,13 @@ Adressen nach dem Start:
 - API: `http://localhost:8080`
 - API-Healthcheck: `http://localhost:8080/health`
 - PostgreSQL: `localhost:5432`
+- Keycloak: `http://localhost:8081`
+- Keycloak-Administration: `http://localhost:8081/admin`
 
 Beim Containerstart wartet das Backend auf PostgreSQL und wendet ausstehende
-EF-Core-Migrationen automatisch an.
+EF-Core-Migrationen automatisch an. Frontend und Backend warten zusätzlich auf
+Keycloak. Die vollständige Konto- und Google-Einrichtung steht in
+[AUTHENTICATION.md](AUTHENTICATION.md).
 
 ## Wichtige Docker-Befehle
 
@@ -54,6 +58,9 @@ docker compose logs --follow
 
 # Nur Backend-Logs verfolgen
 docker compose logs --follow backend
+
+# Keycloak-Logs verfolgen
+docker compose logs --follow keycloak
 
 # Dienste stoppen, Container und Netzwerk behalten
 docker compose stop
@@ -82,6 +89,9 @@ docker compose exec backend /bin/sh
 
 # PostgreSQL-Konsole öffnen
 docker compose exec database psql -U kairos -d kairos
+
+# Öffentliche Keycloak-/OIDC-Konfiguration prüfen
+Invoke-WebRequest -UseBasicParsing http://localhost:8081/realms/kairos/.well-known/openid-configuration
 ```
 
 Achtung: Der folgende Befehl löscht auch alle lokalen PostgreSQL-Daten und ist
@@ -197,6 +207,8 @@ $env:KAIROS_CONNECTION_STRING = "Host=localhost;Port=5432;Database=kairos;Userna
 - Port belegt: `KAIROS_WEB_PORT`, `KAIROS_API_PORT` oder `KAIROS_DB_PORT` in
   `.env` ändern und `docker compose up --detach` erneut ausführen.
 - Backend startet nicht: `docker compose logs backend database` prüfen.
+- Anmeldung startet nicht: `docker compose logs keycloak frontend` prüfen und
+  `http://localhost:8081/realms/kairos` im Browser aufrufen.
 - Migration schlägt fehl: zuerst mit `docker compose ps` kontrollieren, ob die
   Datenbank `healthy` ist.
 - Frontend-Abhängigkeiten inkonsistent: im Ordner `frontend` erneut `npm ci`

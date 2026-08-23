@@ -34,7 +34,7 @@ docker compose up --build
 
 Then open `http://localhost:5173/today`. The API is available at
 `http://localhost:8080`, and its health endpoint at
-`http://localhost:8080/health`.
+`http://localhost:8080/health`. Keycloak runs at `http://localhost:8081`.
 
 All local setup, Docker, migration, test, build, and troubleshooting commands are
 documented in [Development guide](docs/DEVELOPMENT.md).
@@ -46,6 +46,7 @@ documented in [Development guide](docs/DEVELOPMENT.md).
 - [Project context](docs/PROJECT_CONTEXT.md)
 - [Architecture decisions](docs/adr/README.md)
 - [Development and command guide](docs/DEVELOPMENT.md)
+- [Authentication and Google login](docs/AUTHENTICATION.md)
 
 ## Current development focus
 

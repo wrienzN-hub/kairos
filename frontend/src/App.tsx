@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
+import { AuthenticationProvider } from "./auth/AuthenticationContext";
 import { AppErrorBoundary } from "./components/AppErrorBoundary";
 import { AppShell } from "./components/AppShell";
 import { TodayPage } from "./pages/TodayPage";
@@ -18,9 +19,11 @@ export function AppRoutes() {
 export default function App() {
   return (
     <AppErrorBoundary>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <AuthenticationProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthenticationProvider>
     </AppErrorBoundary>
   );
 }
