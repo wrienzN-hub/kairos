@@ -250,6 +250,45 @@ input[type="submit"]:hover {
   background: var(--kairos-forest-light) !important;
 }
 
+/* Remove every native and PatternFly layer before rebuilding this button. */
+#kc-login {
+  all: unset !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  width: 100% !important;
+  height: 3rem !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 0 !important;
+  border-radius: 0.8rem !important;
+  outline: 0 !important;
+  color: #f7fbf4 !important;
+  background: var(--kairos-forest) !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  appearance: none !important;
+}
+
+#kc-login:hover {
+  background: var(--kairos-forest-light) !important;
+}
+
+#kc-login:focus-visible {
+  box-shadow: 0 0 0 3px rgb(36 88 65 / 22%) !important;
+}
+
+#kc-login::before,
+#kc-login::after {
+  all: unset !important;
+  content: none !important;
+  display: none !important;
+}
+
 a,
 .pf-v5-c-button.pf-m-link {
   color: var(--kairos-forest-light) !important;
