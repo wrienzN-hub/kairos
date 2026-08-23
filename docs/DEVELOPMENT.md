@@ -209,6 +209,10 @@ $env:KAIROS_CONNECTION_STRING = "Host=localhost;Port=5432;Database=kairos;Userna
 - Backend startet nicht: `docker compose logs backend database` prüfen.
 - Anmeldung startet nicht: `docker compose logs keycloak frontend` prüfen und
   `http://localhost:8081/realms/kairos` im Browser aufrufen.
+- Google meldet `401: invalid_client`: Im Realm `kairos` unter
+  **Identity providers → Google** prüfen, dass nicht der Platzhalter
+  `not-configured`, sondern die Client-ID und das Client-Secret des
+  Google-OAuth-Clients vom Typ **Web application** gespeichert sind.
 - Migration schlägt fehl: zuerst mit `docker compose ps` kontrollieren, ob die
   Datenbank `healthy` ist.
 - Frontend-Abhängigkeiten inkonsistent: im Ordner `frontend` erneut `npm ci`

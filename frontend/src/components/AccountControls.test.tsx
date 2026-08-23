@@ -1,6 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AccountControls } from "./AccountControls";
@@ -8,13 +7,10 @@ import { AccountControls } from "./AccountControls";
 const { authentication } = vi.hoisted(() => ({
   authentication: {
     authenticated: true,
-    googleLoginEnabled: false,
     identity: { name: "Token Athlete", email: "token@example.test" },
     getAccessToken: vi.fn(async () => "access-token"),
     login: vi.fn(async () => undefined),
-    loginWithGoogle: vi.fn(async () => undefined),
     logout: vi.fn(async () => undefined),
-    register: vi.fn(async () => undefined),
   },
 }));
 
@@ -25,7 +21,6 @@ vi.mock("../auth/authentication-state", () => ({
 describe("Account controls", () => {
   beforeEach(() => {
     authentication.authenticated = true;
-    authentication.googleLoginEnabled = false;
   });
 
   afterEach(() => {
@@ -45,11 +40,7 @@ describe("Account controls", () => {
       ),
     );
 
-    render(
-      <MemoryRouter>
-        <AccountControls />
-      </MemoryRouter>,
-    );
+    render(<AccountControls />);
 
     await waitFor(() =>
       expect(fetch).toHaveBeenCalledWith("/api/me", {
@@ -64,19 +55,12 @@ describe("Account controls", () => {
     expect(screen.getByText("api@example.test")).toBeInTheDocument();
   });
 
-  it("links signed-out users to the Kairos login page", () => {
+  it("opens the central Keycloak login for signed-out users", async () => {
     authentication.authenticated = false;
-    authentication.googleLoginEnabled = true;
 
-    render(
-      <MemoryRouter>
-        <AccountControls />
-      </MemoryRouter>,
-    );
+    render(<AccountControls />);
+    await userEvent.click(screen.getByRole("button", { name: "Anmelden" }));
 
-    expect(screen.getByRole("link", { name: "Anmelden" })).toHaveAttribute(
-      "href",
-      "/login",
-    );
+    expect(authentication.login).toHaveBeenCalledOnce();
   });
 });

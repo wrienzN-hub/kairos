@@ -13,7 +13,6 @@ const keycloak = new Keycloak({
   clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID ?? "kairos-web",
 });
 
-const googleLoginEnabled = import.meta.env.VITE_GOOGLE_LOGIN_ENABLED === "true";
 let initialization: Promise<boolean> | undefined;
 
 function initializeKeycloak() {
@@ -79,7 +78,6 @@ export function AuthenticationProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthenticationContextValue>(
     () => ({
       authenticated,
-      googleLoginEnabled,
       identity,
       getAccessToken: async () => {
         if (!keycloak.authenticated) return null;
@@ -91,20 +89,8 @@ export function AuthenticationProvider({ children }: { children: ReactNode }) {
           redirectUri: `${window.location.origin}/today`,
         });
       },
-      loginWithGoogle: async () => {
-        if (!googleLoginEnabled) return;
-        await keycloak.login({
-          idpHint: "google",
-          redirectUri: `${window.location.origin}/today`,
-        });
-      },
       logout: async () => {
         await keycloak.logout({
-          redirectUri: `${window.location.origin}/today`,
-        });
-      },
-      register: async () => {
-        await keycloak.register({
           redirectUri: `${window.location.origin}/today`,
         });
       },

@@ -10,8 +10,9 @@ Keycloak verwaltet lokale Konten und vermittelt die Anmeldung zu Google.
    `KAIROS_KEYCLOAK_ADMIN_PASSWORD` ändern.
 2. Den Stack mit `docker compose up --build --detach` starten.
 3. `http://localhost:5173/today` öffnen.
-4. Im Header **Anmelden** wählen. Auf der Kairos-Anmeldeseite anschließend
-   **Mit E-Mail und Passwort anmelden** oder **Konto erstellen** auswählen.
+4. Im Header **Anmelden** wählen. Kairos leitet direkt zur grünen
+   Keycloak-Anmeldeseite weiter. Dort stehen Google, E-Mail/Passwort und die
+   Registrierung zur Auswahl.
 
 Die Keycloak-Administration ist unter `http://localhost:8081/admin` erreichbar.
 Die lokalen Zugangsdaten stehen nur in der nicht eingecheckten `.env`-Datei.
@@ -29,20 +30,22 @@ In der Google Cloud Console:
 
    `http://localhost:8081/realms/kairos/broker/google/endpoint`
 
-5. Client-ID und Client-Secret in der lokalen `.env` eintragen und Google
-   aktivieren:
+5. Client-ID und Client-Secret in der lokalen `.env` eintragen:
 
 ```dotenv
-KAIROS_GOOGLE_LOGIN_ENABLED=true
 GOOGLE_CLIENT_ID=deine-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=dein-lokales-client-secret
 ```
 
-Beim ersten Keycloak-Start werden diese Werte in das importierte Realm
-übernommen. Wurde Keycloak vorher bereits ohne Google-Credentials gestartet,
-kannst du entweder die Werte in der Keycloak-Administration unter
-**Identity providers → Google** eintragen oder ausschließlich die lokale
-Keycloak-Entwicklungsdatenbank neu erzeugen:
+Beim allerersten Keycloak-Start werden diese Werte in das importierte Realm
+übernommen. Bei einem bereits vorhandenen Realm werden geänderte `.env`-Werte
+nicht automatisch erneut importiert. Trage sie dann in der
+Keycloak-Administration im Realm **kairos** unter
+**Identity providers → Google** ein und speichere. Das ist der empfohlene Weg,
+weil vorhandene Benutzer erhalten bleiben.
+
+Alternativ kann ausschließlich die lokale Keycloak-Entwicklungsdatenbank neu
+erzeugt werden:
 
 ```powershell
 docker compose stop keycloak frontend
@@ -54,11 +57,24 @@ docker compose up --build --detach keycloak frontend
 Der `docker volume rm`-Befehl löscht alle lokal angelegten Keycloak-Benutzer und
 Sitzungen, aber nicht die Kairos-Trainingsdaten in PostgreSQL.
 
-Ist Google aktiviert, steht auf der grünen Kairos-Anmeldeseite die Schaltfläche
-**Mit Google fortfahren** zur Verfügung. Ohne Aktivierung bleibt sie deaktiviert
-und erklärt per Hinweis, dass zuerst die Konfiguration fehlt. Google ist auf der
-allgemeinen Keycloak-Anmeldeseite bewusst ausgeblendet; Kairos startet den
-Google-Login direkt über diese Schaltfläche.
+Keycloak entscheidet zentral, welche Anmeldewege angeboten werden. Auf der
+gestalteten Keycloak-Seite erscheinen Google, E-Mail/Passwort, Passwort-Reset
+und die lokale Registrierung. Das Kairos-Frontend kennt weder die Google
+Client-ID noch das Client-Secret.
+
+### Fehler `401: invalid_client` oder „OAuth client was not found“
+
+Dieser Fehler bedeutet, dass Keycloak eine fehlende oder falsche Google
+Client-ID verwendet. Insbesondere `client_id=not-configured` ist nur der lokale
+Platzhalter. Prüfe:
+
+1. In der Keycloak-Administration den Realm **kairos** auswählen.
+2. **Identity providers → Google** öffnen.
+3. Die Client-ID des Google-OAuth-Clients vom Typ **Web application** und das
+   dazugehörige Client-Secret eintragen und speichern.
+4. In Google Cloud muss weiterhin exakt
+   `http://localhost:8081/realms/kairos/broker/google/endpoint` als autorisierte
+   Weiterleitungs-URI eingetragen sein.
 
 ## Sicherheitsmodell
 

@@ -2,6 +2,13 @@
   "realm": "kairos",
   "displayName": "Kairos",
   "enabled": true,
+  "loginTheme": "kairos",
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "de",
+    "en"
+  ],
+  "defaultLocale": "de",
   "sslRequired": "external",
   "registrationAllowed": true,
   "registrationEmailAsUsername": true,
@@ -62,7 +69,7 @@
       "displayName": "Google",
       "providerId": "google",
       "enabled": true,
-      "hideOnLogin": true,
+      "hideOnLogin": false,
       "trustEmail": true,
       "storeToken": false,
       "linkOnly": false,

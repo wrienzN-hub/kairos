@@ -6,15 +6,14 @@ import { vi } from "vitest";
 
 import { AppRoutes } from "../App";
 
+const { login } = vi.hoisted(() => ({ login: vi.fn() }));
+
 vi.mock("../auth/authentication-state", () => ({
   useAuthentication: () => ({
     authenticated: false,
-    googleLoginEnabled: false,
     identity: null,
-    login: vi.fn(),
-    loginWithGoogle: vi.fn(),
+    login,
     logout: vi.fn(),
-    register: vi.fn(),
   }),
 }));
 
@@ -35,7 +34,9 @@ describe("Today page", () => {
     expect(
       screen.getByRole("navigation", { name: "Hauptnavigation" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Anmelden" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Anmelden" }),
+    ).toBeInTheDocument();
   });
 
   it("redirects unknown routes to today", async () => {
@@ -52,25 +53,15 @@ describe("Today page", () => {
     ).toBeInTheDocument();
   });
 
-  it("opens the Kairos login page before choosing an identity provider", async () => {
+  it("starts the central Keycloak login from the header", async () => {
     render(
       <MemoryRouter initialEntries={["/today"]}>
         <AppRoutes />
       </MemoryRouter>,
     );
 
-    await userEvent.click(screen.getByRole("link", { name: "Anmelden" }));
+    await userEvent.click(screen.getByRole("button", { name: "Anmelden" }));
 
-    expect(
-      screen.getByRole("heading", { name: "Wie möchtest du fortfahren?" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /Mit Google fortfahren/ }),
-    ).toBeDisabled();
-    expect(
-      screen.getByRole("button", {
-        name: /Mit E-Mail und Passwort anmelden/,
-      }),
-    ).toBeInTheDocument();
+    expect(login).toHaveBeenCalledOnce();
   });
 });
