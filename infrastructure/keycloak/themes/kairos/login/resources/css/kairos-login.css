@@ -105,21 +105,61 @@ html {
 
 label,
 .pf-v5-c-form__label-text {
-  color: var(--kairos-forest);
+  color: #26372d;
   font-weight: 700;
 }
 
 input,
 .pf-v5-c-form-control {
-  border-color: var(--kairos-line) !important;
+  border: 0 !important;
   border-radius: 0.8rem !important;
-  background: #fff !important;
+  color: #17211b !important;
+  background: #eef2ec !important;
+  box-shadow: none !important;
+}
+
+.pf-v5-c-form-control::before,
+.pf-v5-c-form-control::after {
+  border: 0 !important;
+}
+
+input::placeholder {
+  color: #566259 !important;
+  opacity: 1;
 }
 
 input:focus,
 .pf-v5-c-form-control:focus-within {
-  border-color: var(--kairos-forest-light) !important;
-  box-shadow: 0 0 0 3px rgb(36 88 65 / 14%) !important;
+  box-shadow: 0 0 0 3px rgb(36 88 65 / 18%) !important;
+}
+
+.pf-v5-c-check__label {
+  color: #3d4b42 !important;
+  opacity: 1 !important;
+}
+
+.pf-v5-c-check__input {
+  accent-color: var(--kairos-forest-light);
+}
+
+#password-show-password {
+  min-width: 2.5rem;
+  padding: 0 0.65rem;
+  border: 0 !important;
+  border-radius: 0 !important;
+  color: var(--kairos-forest-light) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#password-show-password::after {
+  border: 0 !important;
+}
+
+#password-show-password:hover,
+#password-show-password:focus-visible {
+  color: var(--kairos-forest) !important;
+  background: transparent !important;
 }
 
 .pf-v5-c-button.pf-m-primary,
