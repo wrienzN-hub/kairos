@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { vi } from "vitest";
@@ -34,12 +35,7 @@ describe("Today page", () => {
     expect(
       screen.getByRole("navigation", { name: "Hauptnavigation" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Anmelden" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Mit Google anmelden" }),
-    ).toBeDisabled();
+    expect(screen.getByRole("link", { name: "Anmelden" })).toBeInTheDocument();
   });
 
   it("redirects unknown routes to today", async () => {
@@ -52,6 +48,28 @@ describe("Today page", () => {
     expect(
       await screen.findByRole("heading", {
         name: "Bereit für den nächsten guten Reiz.",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("opens the Kairos login page before choosing an identity provider", async () => {
+    render(
+      <MemoryRouter initialEntries={["/today"]}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+
+    await userEvent.click(screen.getByRole("link", { name: "Anmelden" }));
+
+    expect(
+      screen.getByRole("heading", { name: "Wie möchtest du fortfahren?" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Mit Google fortfahren/ }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", {
+        name: /Mit E-Mail und Passwort anmelden/,
       }),
     ).toBeInTheDocument();
   });

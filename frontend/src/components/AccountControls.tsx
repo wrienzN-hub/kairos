@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { useAuthentication } from "../auth/authentication-state";
 
@@ -80,30 +81,9 @@ export function AccountControls() {
 
   return (
     <div className="account-controls signed-out">
-      <button type="button" onClick={() => void authentication.login()}>
+      <Link className="login-link" to="/login">
         Anmelden
-      </button>
-      <button
-        type="button"
-        className="google-login"
-        disabled={!authentication.googleLoginEnabled}
-        title={
-          authentication.googleLoginEnabled
-            ? "Mit Google anmelden"
-            : "Google-Anmeldung muss zuerst konfiguriert werden"
-        }
-        onClick={() => void authentication.loginWithGoogle()}
-      >
-        <span aria-hidden="true">G</span>
-        Mit Google anmelden
-      </button>
-      <button
-        type="button"
-        className="register-link"
-        onClick={() => void authentication.register()}
-      >
-        Konto erstellen
-      </button>
+      </Link>
     </div>
   );
 }

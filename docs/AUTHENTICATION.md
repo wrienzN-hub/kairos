@@ -10,8 +10,8 @@ Keycloak verwaltet lokale Konten und vermittelt die Anmeldung zu Google.
    `KAIROS_KEYCLOAK_ADMIN_PASSWORD` ändern.
 2. Den Stack mit `docker compose up --build --detach` starten.
 3. `http://localhost:5173/today` öffnen.
-4. Über **Konto erstellen** ein lokales Konto registrieren oder über
-   **Anmelden** ein vorhandenes Konto verwenden.
+4. Im Header **Anmelden** wählen. Auf der Kairos-Anmeldeseite anschließend
+   **Mit E-Mail und Passwort anmelden** oder **Konto erstellen** auswählen.
 
 Die Keycloak-Administration ist unter `http://localhost:8081/admin` erreichbar.
 Die lokalen Zugangsdaten stehen nur in der nicht eingecheckten `.env`-Datei.
@@ -54,11 +54,11 @@ docker compose up --build --detach keycloak frontend
 Der `docker volume rm`-Befehl löscht alle lokal angelegten Keycloak-Benutzer und
 Sitzungen, aber nicht die Kairos-Trainingsdaten in PostgreSQL.
 
-Ist Google aktiviert, erscheint im grünen Kairos-Header die Schaltfläche
-**Mit Google anmelden**. Ohne Aktivierung bleibt sie deaktiviert und erklärt per
-Hinweis, dass zuerst die Konfiguration fehlt. Google ist auf der allgemeinen
-Keycloak-Anmeldeseite bewusst ausgeblendet; Kairos startet den Google-Login
-direkt über diese Schaltfläche.
+Ist Google aktiviert, steht auf der grünen Kairos-Anmeldeseite die Schaltfläche
+**Mit Google fortfahren** zur Verfügung. Ohne Aktivierung bleibt sie deaktiviert
+und erklärt per Hinweis, dass zuerst die Konfiguration fehlt. Google ist auf der
+allgemeinen Keycloak-Anmeldeseite bewusst ausgeblendet; Kairos startet den
+Google-Login direkt über diese Schaltfläche.
 
 ## Sicherheitsmodell
 

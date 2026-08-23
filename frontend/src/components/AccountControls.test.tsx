@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AccountControls } from "./AccountControls";
@@ -44,7 +45,11 @@ describe("Account controls", () => {
       ),
     );
 
-    render(<AccountControls />);
+    render(
+      <MemoryRouter>
+        <AccountControls />
+      </MemoryRouter>,
+    );
 
     await waitFor(() =>
       expect(fetch).toHaveBeenCalledWith("/api/me", {
@@ -59,16 +64,19 @@ describe("Account controls", () => {
     expect(screen.getByText("api@example.test")).toBeInTheDocument();
   });
 
-  it("offers the configured Google identity provider", async () => {
+  it("links signed-out users to the Kairos login page", () => {
     authentication.authenticated = false;
     authentication.googleLoginEnabled = true;
 
-    render(<AccountControls />);
-
-    await userEvent.click(
-      screen.getByRole("button", { name: "Mit Google anmelden" }),
+    render(
+      <MemoryRouter>
+        <AccountControls />
+      </MemoryRouter>,
     );
 
-    expect(authentication.loginWithGoogle).toHaveBeenCalledOnce();
+    expect(screen.getByRole("link", { name: "Anmelden" })).toHaveAttribute(
+      "href",
+      "/login",
+    );
   });
 });
