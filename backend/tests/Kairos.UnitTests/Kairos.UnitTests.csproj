@@ -23,4 +23,9 @@
     <ProjectReference Include="..\..\src\Kairos.Domain\Kairos.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Fixtures\Fit\*.fit" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Fixtures\Fit\expectations.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
