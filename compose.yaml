@@ -57,7 +57,6 @@ services:
         VITE_KEYCLOAK_URL: http://localhost:${KAIROS_KEYCLOAK_PORT:-8081}
         VITE_KEYCLOAK_REALM: kairos
         VITE_KEYCLOAK_CLIENT_ID: kairos-web
-        VITE_GOOGLE_LOGIN_ENABLED: ${KAIROS_GOOGLE_LOGIN_ENABLED:-false}
     ports:
       - "${KAIROS_WEB_PORT:-5173}:80"
     depends_on:
@@ -87,6 +86,7 @@ services:
     volumes:
       - kairos-keycloak-data:/opt/keycloak/data
       - ./infrastructure/keycloak/kairos-realm.json:/opt/keycloak/data/import/kairos-realm.json:ro
+      - ./infrastructure/keycloak/themes:/opt/keycloak/themes:ro
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/9000'"]
       interval: 10s

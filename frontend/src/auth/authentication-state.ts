@@ -8,13 +8,10 @@ export type AthleteIdentity = {
 
 export type AuthenticationContextValue = {
   authenticated: boolean;
-  googleLoginEnabled: boolean;
   identity: AthleteIdentity | null;
   getAccessToken: () => Promise<string | null>;
   login: () => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
-  register: () => Promise<void>;
 };
 
 export const AuthenticationContext =

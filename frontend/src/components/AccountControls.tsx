@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
 import { useAuthentication } from "../auth/authentication-state";
 
@@ -81,9 +80,9 @@ export function AccountControls() {
 
   return (
     <div className="account-controls signed-out">
-      <Link className="login-link" to="/login">
+      <button type="button" onClick={() => void authentication.login()}>
         Anmelden
-      </Link>
+      </button>
     </div>
   );
 }
