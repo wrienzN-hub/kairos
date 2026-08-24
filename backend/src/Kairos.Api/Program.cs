@@ -1,8 +1,11 @@
+using Kairos.Api.ActivityImports;
 using Kairos.Api.Authentication;
 using Kairos.Api.Configuration;
+using Kairos.Application.ActivityImports;
 using Kairos.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
@@ -17,6 +20,35 @@ builder.Services
         options => !string.IsNullOrWhiteSpace(options.ProductName),
         $"{KairosOptions.SectionName}:ProductName must not be empty.")
     .ValidateOnStart();
+
+builder.Services
+    .AddOptions<FitUploadOptions>()
+    .Bind(builder.Configuration.GetRequiredSection(FitUploadOptions.SectionName))
+    .Validate(
+        options => options.MaximumFileSizeBytes is > 0 and <= int.MaxValue,
+        $"{FitUploadOptions.SectionName}:MaximumFileSizeBytes must be between 1 and {int.MaxValue}."
+    )
+    .ValidateOnStart();
+
+var fitUploadOptions = builder.Configuration
+    .GetRequiredSection(FitUploadOptions.SectionName)
+    .Get<FitUploadOptions>()
+    ?? throw new InvalidOperationException(
+        $"{FitUploadOptions.SectionName} configuration is required."
+    );
+var multipartBodyLengthLimit = checked(
+    fitUploadOptions.MaximumFileSizeBytes + 1024 * 1024
+);
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = multipartBodyLengthLimit;
+});
+builder.Services.AddSingleton(new FitUploadPolicy(fitUploadOptions.MaximumFileSizeBytes));
+builder.Services.AddScoped<FitUploadService>();
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = multipartBodyLengthLimit;
+});
 
 var authentication = builder.Configuration
     .GetRequiredSection(AuthenticationOptions.SectionName)
@@ -92,6 +124,8 @@ app.MapGet(
             email = user.FindFirstValue("email"),
         }))
     .RequireAuthorization();
+
+app.MapFitUploadEndpoints();
 
 app.MapHealthChecks("/health", new HealthCheckOptions
 {

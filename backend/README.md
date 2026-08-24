@@ -21,6 +21,8 @@ Application depends on Domain. Domain has no project dependency.
 
 The vendor-neutral activity aggregate and its invariants are documented in
 [`docs/domain/activity-domain-model.md`](../docs/domain/activity-domain-model.md).
+The authenticated FIT upload, validation rules, and PostgreSQL staging storage
+are documented in [`docs/FIT_UPLOAD.md`](../docs/FIT_UPLOAD.md).
 
 ## Commands
 

@@ -25,4 +25,10 @@
     <ProjectReference Include="..\..\src\Kairos.Infrastructure\Kairos.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\Kairos.UnitTests\Fixtures\Fit\*.fit"
+          Link="Fixtures\Fit\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

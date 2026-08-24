@@ -1,3 +1,4 @@
+using Kairos.Application.ActivityImports;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,6 +14,7 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddDbContext<KairosDbContext>(options =>
             options.UseNpgsql(connectionString));
+        services.AddScoped<IFitUploadStore, EfFitUploadStore>();
 
         return services;
     }
