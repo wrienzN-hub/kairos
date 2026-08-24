@@ -2,6 +2,9 @@
 
 The backend is an ASP.NET Core modular monolith targeting .NET 10 LTS.
 
+The FIT import pipeline is documented in [FIT_UPLOAD.md](../docs/FIT_UPLOAD.md)
+and [FIT_PARSER.md](../docs/FIT_PARSER.md).
+
 ## Structure
 
 ```text
