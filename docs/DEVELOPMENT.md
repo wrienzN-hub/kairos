@@ -47,6 +47,9 @@ EF-Core-Migrationen automatisch an. Frontend und Backend warten zusätzlich auf
 Keycloak. Die vollständige Konto- und Google-Einrichtung steht in
 [AUTHENTICATION.md](AUTHENTICATION.md).
 
+Der sichere, authentifizierte FIT-Endpunkt und die Speicherung der noch nicht
+geparsten Originaldateien sind in [FIT_UPLOAD.md](FIT_UPLOAD.md) beschrieben.
+
 ## Wichtige Docker-Befehle
 
 ```powershell
