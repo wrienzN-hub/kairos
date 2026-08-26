@@ -20,11 +20,27 @@ public sealed record FitUploadReceipt(
     string Status
 );
 
+public sealed record FitUploadContent(
+    Guid Id,
+    string OwnerSubject,
+    string OriginalFileName,
+    string Sha256,
+    DateTimeOffset UploadedAtUtc,
+    string Status,
+    byte[] Content
+);
+
 public interface IFitUploadStore
 {
     Task AddAsync(FitUploadSubmission upload, CancellationToken cancellationToken);
 
     Task<FitUploadReceipt?> FindAsync(
+        Guid id,
+        string ownerSubject,
+        CancellationToken cancellationToken
+    );
+
+    Task<FitUploadContent?> LoadAsync(
         Guid id,
         string ownerSubject,
         CancellationToken cancellationToken

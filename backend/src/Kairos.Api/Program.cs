@@ -1,4 +1,5 @@
 using Kairos.Api.ActivityImports;
+using Kairos.Api.Activities;
 using Kairos.Api.Authentication;
 using Kairos.Api.Configuration;
 using Kairos.Application.ActivityImports;
@@ -45,6 +46,7 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 builder.Services.AddSingleton(new FitUploadPolicy(fitUploadOptions.MaximumFileSizeBytes));
 builder.Services.AddScoped<FitUploadService>();
+builder.Services.AddScoped<FitActivityImportService>();
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = multipartBodyLengthLimit;
@@ -126,6 +128,7 @@ app.MapGet(
     .RequireAuthorization();
 
 app.MapFitUploadEndpoints();
+app.MapActivityEndpoints();
 
 app.MapHealthChecks("/health", new HealthCheckOptions
 {
