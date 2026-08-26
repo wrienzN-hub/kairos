@@ -185,6 +185,13 @@ public sealed class FitUploadServiceTests
                     )
             );
         }
+
+        public Task SetStatusAsync(
+            Guid id,
+            string ownerSubject,
+            string status,
+            CancellationToken cancellationToken
+        ) => Task.CompletedTask;
     }
 
     private sealed class TrackingStream(byte[] content) : MemoryStream(content)

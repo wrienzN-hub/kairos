@@ -67,4 +67,20 @@ public sealed class EfFitUploadStore(KairosDbContext dbContext) : IFitUploadStor
             ))
             .SingleOrDefaultAsync(cancellationToken);
     }
+
+    public async Task SetStatusAsync(
+        Guid id,
+        string ownerSubject,
+        string status,
+        CancellationToken cancellationToken
+    )
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(status);
+        var upload = await dbContext.FitUploads.SingleOrDefaultAsync(
+            value => value.Id == id && value.OwnerSubject == ownerSubject,
+            cancellationToken
+        ) ?? throw new InvalidOperationException("The FIT upload no longer exists.");
+        upload.Status = status;
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

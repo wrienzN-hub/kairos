@@ -43,6 +43,8 @@ public sealed class ActivityImportEndpointTests
         Assert.Equal(HttpStatusCode.Created, importResponse.StatusCode);
         Assert.Equal("imported", importBody.RootElement.GetProperty("status").GetString());
         Assert.Equal(2, importBody.RootElement.GetProperty("sampleCount").GetInt32());
+        Assert.Equal("limited", importBody.RootElement.GetProperty("analysisStatus").GetString());
+        Assert.Equal(4, importBody.RootElement.GetProperty("qualityFindingCount").GetInt32());
         Assert.Equal(HttpStatusCode.OK, activityResponse.StatusCode);
         Assert.Equal("cycling", activityBody.RootElement.GetProperty("type").GetString());
         Assert.Equal(
@@ -50,6 +52,19 @@ public sealed class ActivityImportEndpointTests
             activityBody.RootElement.GetProperty("source").GetProperty("originalFileName").GetString()
         );
         Assert.Equal(2, activityBody.RootElement.GetProperty("samples").GetArrayLength());
+        Assert.True(
+            activityBody.RootElement
+                .GetProperty("quality")
+                .GetProperty("isAnalysisRestricted")
+                .GetBoolean()
+        );
+        Assert.Contains(
+            activityBody.RootElement
+                .GetProperty("quality")
+                .GetProperty("findings")
+                .EnumerateArray(),
+            finding => finding.GetProperty("code").GetString() == "missing_power_stream"
+        );
         Assert.Contains(
             activityBody.RootElement.GetProperty("summary").EnumerateArray(),
             metric =>
@@ -73,6 +88,55 @@ public sealed class ActivityImportEndpointTests
         var response = await otherClient.GetAsync($"/api/activities/{id}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Repeated_file_import_returns_existing_activity_as_duplicate()
+    {
+        await using var factory = CreateFactory();
+        using var client = CreateClient(factory, "athlete-123");
+        using var firstUpload = Upload("minimal-cycling.fit", "first.fit");
+        using var secondUpload = Upload("minimal-cycling.fit", "second.fit");
+        var firstUploadResponse = await client.PostAsync(
+            "/api/activity-imports/fit",
+            firstUpload
+        );
+        var secondUploadResponse = await client.PostAsync(
+            "/api/activity-imports/fit",
+            secondUpload
+        );
+        var firstUploadId = JsonDocument
+            .Parse(await firstUploadResponse.Content.ReadAsStringAsync())
+            .RootElement.GetProperty("id")
+            .GetGuid();
+        var secondUploadId = JsonDocument
+            .Parse(await secondUploadResponse.Content.ReadAsStringAsync())
+            .RootElement.GetProperty("id")
+            .GetGuid();
+
+        var firstImport = await client.PostAsync(
+            $"/api/activity-imports/fit/{firstUploadId}/import",
+            null
+        );
+        var duplicateImport = await client.PostAsync(
+            $"/api/activity-imports/fit/{secondUploadId}/import",
+            null
+        );
+        var duplicateBody = JsonDocument.Parse(
+            await duplicateImport.Content.ReadAsStringAsync()
+        );
+
+        Assert.Equal(HttpStatusCode.Created, firstImport.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, duplicateImport.StatusCode);
+        Assert.Equal("duplicate", duplicateBody.RootElement.GetProperty("status").GetString());
+        Assert.Equal(firstUploadId, duplicateBody.RootElement.GetProperty("id").GetGuid());
+        using var scope = factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<KairosDbContext>();
+        Assert.Equal(1, await context.Activities.CountAsync());
+        Assert.Equal(
+            "duplicate",
+            (await context.FitUploads.SingleAsync(upload => upload.Id == secondUploadId)).Status
+        );
     }
 
     private static WebApplicationFactory<Program> CreateFactory()

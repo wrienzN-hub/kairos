@@ -42,6 +42,14 @@ public sealed class ActivityQuality
 {
     public IReadOnlyList<QualityFinding> Findings { get; }
     public bool HasErrors => Findings.Any(finding => finding.Severity == QualitySeverity.Error);
+    public bool IsAnalysisRestricted => Findings.Any(finding =>
+        finding.Severity is QualitySeverity.Warning or QualitySeverity.Error
+    );
+    public string AnalysisStatus => HasErrors
+        ? "blocked"
+        : IsAnalysisRestricted
+            ? "limited"
+            : "eligible";
 
     public ActivityQuality(IEnumerable<QualityFinding>? findings = null)
     {

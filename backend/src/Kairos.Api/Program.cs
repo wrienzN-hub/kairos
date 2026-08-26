@@ -3,6 +3,7 @@ using Kairos.Api.Activities;
 using Kairos.Api.Authentication;
 using Kairos.Api.Configuration;
 using Kairos.Application.ActivityImports;
+using Kairos.Application.Activities;
 using Kairos.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -47,6 +48,7 @@ builder.WebHost.ConfigureKestrel(options =>
 builder.Services.AddSingleton(new FitUploadPolicy(fitUploadOptions.MaximumFileSizeBytes));
 builder.Services.AddScoped<FitUploadService>();
 builder.Services.AddScoped<FitActivityImportService>();
+builder.Services.AddSingleton<ActivityQualityEvaluator>();
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = multipartBodyLengthLimit;

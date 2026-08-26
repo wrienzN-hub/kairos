@@ -210,6 +210,13 @@ public sealed class FitUploadEndpointTests
                     )
             );
         }
+
+        public Task SetStatusAsync(
+            Guid id,
+            string ownerSubject,
+            string status,
+            CancellationToken cancellationToken
+        ) => Task.CompletedTask;
     }
 
     private static HttpClient CreateAuthenticatedClient(
