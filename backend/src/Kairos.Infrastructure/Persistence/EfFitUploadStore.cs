@@ -46,4 +46,25 @@ public sealed class EfFitUploadStore(KairosDbContext dbContext) : IFitUploadStor
             ))
             .SingleOrDefaultAsync(cancellationToken);
     }
+
+    public Task<FitUploadContent?> LoadAsync(
+        Guid id,
+        string ownerSubject,
+        CancellationToken cancellationToken
+    )
+    {
+        return dbContext
+            .FitUploads.AsNoTracking()
+            .Where(upload => upload.Id == id && upload.OwnerSubject == ownerSubject)
+            .Select(upload => new FitUploadContent(
+                upload.Id,
+                upload.OwnerSubject,
+                upload.OriginalFileName,
+                upload.Sha256,
+                upload.UploadedAtUtc,
+                upload.Status,
+                upload.Content
+            ))
+            .SingleOrDefaultAsync(cancellationToken);
+    }
 }

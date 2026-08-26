@@ -161,6 +161,30 @@ public sealed class FitUploadServiceTests
                     )
             );
         }
+
+        public Task<FitUploadContent?> LoadAsync(
+            Guid id,
+            string ownerSubject,
+            CancellationToken cancellationToken
+        )
+        {
+            var upload = Uploads.SingleOrDefault(value =>
+                value.Id == id && value.OwnerSubject == ownerSubject
+            );
+            return Task.FromResult(
+                upload is null
+                    ? null
+                    : new FitUploadContent(
+                        upload.Id,
+                        upload.OwnerSubject,
+                        upload.OriginalFileName,
+                        upload.Sha256,
+                        upload.UploadedAtUtc,
+                        "pending",
+                        upload.Content
+                    )
+            );
+        }
     }
 
     private sealed class TrackingStream(byte[] content) : MemoryStream(content)
