@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Kairos.Application\Kairos.Application.csproj" />
     <ProjectReference Include="..\..\src\Kairos.Domain\Kairos.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Kairos.Infrastructure\Kairos.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
 using Kairos.Application.ActivityImports;
+using Kairos.Infrastructure.ActivityImports;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +16,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddDbContext<KairosDbContext>(options =>
             options.UseNpgsql(connectionString));
         services.AddScoped<IFitUploadStore, EfFitUploadStore>();
+        services.AddSingleton<IFitActivityParser, GarminFitActivityParser>();
 
         return services;
     }
