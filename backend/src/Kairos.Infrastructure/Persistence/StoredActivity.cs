@@ -24,5 +24,9 @@ public sealed class StoredActivity
 
     public DateTimeOffset ImportedAtUtc { get; set; }
 
+    public decimal? DistanceMeters { get; set; }
+
+    public required string AnalysisStatus { get; set; }
+
     public required string Document { get; set; }
 }

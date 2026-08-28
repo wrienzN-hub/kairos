@@ -15,6 +15,7 @@ export function AppShell() {
         <div className="topbar-actions">
           <nav aria-label="Hauptnavigation">
             <NavLink to="/today">Heute</NavLink>
+            <NavLink to="/activities">Aktivitäten</NavLink>
           </nav>
           <AccountControls />
         </div>

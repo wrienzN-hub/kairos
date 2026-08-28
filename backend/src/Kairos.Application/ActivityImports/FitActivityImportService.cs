@@ -116,4 +116,13 @@ public sealed class FitActivityImportService(
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerSubject);
         return activityStore.FindAsync(id, ownerSubject, cancellationToken);
     }
+
+    public Task<IReadOnlyList<ActivityListItem>> ListAsync(
+        string ownerSubject,
+        CancellationToken cancellationToken
+    )
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(ownerSubject);
+        return activityStore.ListAsync(ownerSubject, cancellationToken);
+    }
 }
