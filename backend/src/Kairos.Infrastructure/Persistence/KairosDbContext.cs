@@ -7,6 +7,7 @@ public sealed class KairosDbContext(DbContextOptions<KairosDbContext> options)
 {
     public DbSet<StoredFitUpload> FitUploads => Set<StoredFitUpload>();
     public DbSet<StoredActivity> Activities => Set<StoredActivity>();
+    public DbSet<StoredActivityAuditEvent> ActivityAuditEvents => Set<StoredActivityAuditEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -82,6 +83,15 @@ public sealed class KairosDbContext(DbContextOptions<KairosDbContext> options)
             .HasMaxLength(64)
             .IsFixedLength();
         activity.Property(value => value.ImportedAtUtc).HasColumnName("imported_at_utc");
+        activity
+            .Property(value => value.DistanceMeters)
+            .HasColumnName("distance_meters")
+            .HasPrecision(14, 3);
+        activity
+            .Property(value => value.AnalysisStatus)
+            .HasColumnName("analysis_status")
+            .HasMaxLength(32)
+            .IsRequired();
         activity.Property(value => value.Document).HasColumnName("document").HasColumnType("jsonb");
         activity.HasIndex(value => value.SourceUploadId).IsUnique();
         activity
@@ -93,5 +103,29 @@ public sealed class KairosDbContext(DbContextOptions<KairosDbContext> options)
             .WithOne()
             .HasForeignKey<StoredActivity>(value => value.SourceUploadId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        var auditEvent = modelBuilder.Entity<StoredActivityAuditEvent>();
+        auditEvent.ToTable("activity_audit_events");
+        auditEvent.HasKey(value => value.Id);
+        auditEvent.Property(value => value.Id).HasColumnName("id");
+        auditEvent
+            .Property(value => value.OwnerSubject)
+            .HasColumnName("owner_subject")
+            .HasMaxLength(255)
+            .IsRequired();
+        auditEvent.Property(value => value.ActivityId).HasColumnName("activity_id");
+        auditEvent
+            .Property(value => value.Action)
+            .HasColumnName("action")
+            .HasMaxLength(32)
+            .IsRequired();
+        auditEvent.Property(value => value.OccurredAtUtc).HasColumnName("occurred_at_utc");
+        auditEvent
+            .Property(value => value.Details)
+            .HasColumnName("details")
+            .HasColumnType("jsonb")
+            .IsRequired();
+        auditEvent.HasIndex(value => new { value.OwnerSubject, value.OccurredAtUtc });
+        auditEvent.HasIndex(value => new { value.ActivityId, value.OccurredAtUtc });
     }
 }

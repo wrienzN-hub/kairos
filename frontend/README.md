@@ -3,6 +3,12 @@
 Responsive React and TypeScript web application. The first route is `/today`
 and provides the stable shell for the athlete's daily coaching view.
 
+Authenticated athletes can import and browse FIT activities at `/activities`.
+The overview and detail behavior is documented in
+[`docs/ACTIVITY_UI.md`](../docs/ACTIVITY_UI.md).
+Export and deletion from the detail page are documented in
+[`docs/ACTIVITY_DATA_CONTROL.md`](../docs/ACTIVITY_DATA_CONTROL.md).
+
 ## Commands
 
 ```powershell

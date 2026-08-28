@@ -3,6 +3,7 @@ using System;
 using Kairos.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Kairos.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(KairosDbContext))]
-    partial class KairosDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260828150028_AddActivityListMetadata")]
+    partial class AddActivityListMetadata
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,47 +110,6 @@ namespace Kairos.Infrastructure.Persistence.Migrations
                     b.HasIndex("OwnerSubject", "StartUtc");
 
                     b.ToTable("activities", (string)null);
-                });
-
-            modelBuilder.Entity("Kairos.Infrastructure.Persistence.StoredActivityAuditEvent", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("action");
-
-                    b.Property<Guid>("ActivityId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("activity_id");
-
-                    b.Property<string>("Details")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("details");
-
-                    b.Property<DateTimeOffset>("OccurredAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("occurred_at_utc");
-
-                    b.Property<string>("OwnerSubject")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("owner_subject");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ActivityId", "OccurredAtUtc");
-
-                    b.HasIndex("OwnerSubject", "OccurredAtUtc");
-
-                    b.ToTable("activity_audit_events", (string)null);
                 });
 
             modelBuilder.Entity("Kairos.Infrastructure.Persistence.StoredFitUpload", b =>
