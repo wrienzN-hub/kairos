@@ -7,6 +7,8 @@ and [FIT_PARSER.md](../docs/FIT_PARSER.md). Persistence and API orchestration ar
 described in [ACTIVITY_PERSISTENCE.md](../docs/ACTIVITY_PERSISTENCE.md).
 Duplicate handling and explainable analysis limitations are documented in
 [ACTIVITY_QUALITY.md](../docs/ACTIVITY_QUALITY.md).
+Authenticated JSON export, deletion scope, and audit behavior are documented in
+[ACTIVITY_DATA_CONTROL.md](../docs/ACTIVITY_DATA_CONTROL.md).
 
 ## Structure
 

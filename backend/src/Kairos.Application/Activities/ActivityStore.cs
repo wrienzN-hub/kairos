@@ -38,4 +38,16 @@ public interface IActivityStore
         string ownerSubject,
         CancellationToken cancellationToken
     );
+
+    Task<Activity?> FindForExportAsync(
+        Guid id,
+        string ownerSubject,
+        CancellationToken cancellationToken
+    );
+
+    Task<bool> DeleteAsync(
+        Guid id,
+        string ownerSubject,
+        CancellationToken cancellationToken
+    );
 }

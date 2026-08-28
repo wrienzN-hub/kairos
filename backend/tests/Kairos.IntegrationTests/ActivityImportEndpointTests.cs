@@ -165,6 +165,77 @@ public sealed class ActivityImportEndpointTests
         Assert.Empty(otherBody.RootElement.EnumerateArray());
     }
 
+    [Fact]
+    public async Task Owner_can_export_normalized_activity_with_provenance_and_audit()
+    {
+        await using var factory = CreateFactory();
+        using var client = CreateClient(factory, "athlete-123");
+        using var upload = Upload("minimal-cycling.fit", "export-me.fit");
+        var id = await UploadAndImport(client, upload);
+
+        var response = await client.GetAsync($"/api/activities/{id}/export");
+        var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
+        Assert.Contains($"kairos-activity-{id}.json", response.Content.Headers.ContentDisposition?.FileName);
+        Assert.Equal(1, body.RootElement.GetProperty("schemaVersion").GetInt32());
+        var activity = body.RootElement.GetProperty("activity");
+        Assert.Equal(id, activity.GetProperty("id").GetGuid());
+        Assert.Equal(
+            64,
+            activity.GetProperty("source").GetProperty("contentHashSha256").GetString()?.Length
+        );
+        Assert.Contains(
+            activity.GetProperty("summary").EnumerateArray(),
+            metric => metric.GetProperty("provenance").GetProperty("sourceField").ValueKind
+                == JsonValueKind.String
+        );
+
+        using var scope = factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<KairosDbContext>();
+        var audit = await context.ActivityAuditEvents.SingleAsync();
+        Assert.Equal("exported", audit.Action);
+        Assert.Equal(id, audit.ActivityId);
+        Assert.Equal("athlete-123", audit.OwnerSubject);
+    }
+
+    [Fact]
+    public async Task Delete_removes_activity_and_raw_upload_but_preserves_audit()
+    {
+        await using var factory = CreateFactory();
+        using var ownerClient = CreateClient(factory, "athlete-123");
+        using var upload = Upload("interval-cycling.fit", "delete-me.fit");
+        var id = await UploadAndImport(ownerClient, upload);
+
+        using var otherClient = CreateClient(factory, "other-athlete");
+        Assert.Equal(
+            HttpStatusCode.NotFound,
+            (await otherClient.GetAsync($"/api/activities/{id}/export")).StatusCode
+        );
+        Assert.Equal(
+            HttpStatusCode.NotFound,
+            (await otherClient.DeleteAsync($"/api/activities/{id}")).StatusCode
+        );
+
+        var response = await ownerClient.DeleteAsync($"/api/activities/{id}");
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal(
+            HttpStatusCode.NotFound,
+            (await ownerClient.GetAsync($"/api/activities/{id}")).StatusCode
+        );
+        using var scope = factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<KairosDbContext>();
+        Assert.Empty(await context.Activities.ToArrayAsync());
+        Assert.Empty(await context.FitUploads.ToArrayAsync());
+        var audit = await context.ActivityAuditEvents.SingleAsync();
+        Assert.Equal("deleted", audit.Action);
+        Assert.Equal("athlete-123", audit.OwnerSubject);
+        Assert.Contains("\"SampleCount\":5", audit.Details);
+        Assert.Contains("\"RawUploadDeleted\":true", audit.Details);
+    }
+
     private static async Task<Guid> UploadAndImport(
         HttpClient client,
         MultipartFormDataContent upload

@@ -96,6 +96,28 @@ export async function getActivity(id: string, token: string) {
   return (await response.json()) as ActivityDetail;
 }
 
+export async function exportActivity(id: string, token: string) {
+  const response = await authorizedRequest(
+    `/api/activities/${id}/export`,
+    token,
+  );
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const encodedName = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
+  const plainName = disposition.match(/filename="?([^";]+)"?/i)?.[1];
+  return {
+    blob: await response.blob(),
+    fileName:
+      (encodedName ? decodeURIComponent(encodedName) : plainName) ??
+      `kairos-activity-${id}.json`,
+  };
+}
+
+export async function deleteActivity(id: string, token: string) {
+  await authorizedRequest(`/api/activities/${id}`, token, {
+    method: "DELETE",
+  });
+}
+
 export async function uploadAndImportActivity(file: File, token: string) {
   const form = new FormData();
   form.append("file", file);

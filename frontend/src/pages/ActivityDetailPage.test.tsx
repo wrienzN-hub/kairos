@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -16,7 +17,10 @@ vi.mock("../auth/authentication-state", () => ({
   useAuthentication: () => authentication,
 }));
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 describe("Activity detail page", () => {
   it("shows source, quality, summary and supported time series", async () => {
@@ -82,6 +86,106 @@ describe("Activity detail page", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Erneut laden" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the complete deletion scope before making a request", async () => {
+    const fetchMock = vi.fn().mockImplementation(() =>
+      Promise.resolve(
+        new Response(JSON.stringify(activity), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter initialEntries={["/activities/activity-1"]}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+    await screen.findByRole("heading", { name: "Radfahrt" });
+    await user.click(screen.getByRole("button", { name: "Aktivität löschen" }));
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByText("1 Messpunkte")).toBeInTheDocument();
+    expect(screen.getByText("die ursprüngliche FIT-Datei")).toBeInTheDocument();
+    expect(
+      screen.getByText("alle daraus abgeleiteten Analysewerte"),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Abbrechen" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      "/api/activities/activity-1",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("exports JSON and deletes only after confirmation", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
+        if (input === "/api/activities/activity-1/export") {
+          return Promise.resolve(
+            new Response("{}", {
+              status: 200,
+              headers: {
+                "Content-Type": "application/json",
+                "Content-Disposition":
+                  "attachment; filename=kairos-activity-activity-1.json",
+              },
+            }),
+          );
+        }
+        if (init?.method === "DELETE") {
+          return Promise.resolve(new Response(null, { status: 204 }));
+        }
+        if (input === "/api/activities") {
+          return Promise.resolve(
+            new Response("[]", {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            }),
+          );
+        }
+        return Promise.resolve(
+          new Response(JSON.stringify(activity), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }),
+        );
+      });
+    vi.stubGlobal("fetch", fetchMock);
+    const createObjectUrl = vi.fn().mockReturnValue("blob:export");
+    const revokeObjectUrl = vi.fn();
+    vi.stubGlobal("URL", {
+      ...URL,
+      createObjectURL: createObjectUrl,
+      revokeObjectURL: revokeObjectUrl,
+    });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter initialEntries={["/activities/activity-1"]}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+    await screen.findByRole("heading", { name: "Radfahrt" });
+    await user.click(screen.getByRole("button", { name: "JSON exportieren" }));
+    expect(createObjectUrl).toHaveBeenCalledOnce();
+    expect(revokeObjectUrl).toHaveBeenCalledWith("blob:export");
+
+    await user.click(screen.getByRole("button", { name: "Aktivität löschen" }));
+    await user.click(screen.getByRole("button", { name: "Endgültig löschen" }));
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/activities/activity-1",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+    expect(
+      await screen.findByRole("heading", { name: "Noch keine Aktivität" }),
     ).toBeInTheDocument();
   });
 });

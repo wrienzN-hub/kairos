@@ -575,6 +575,117 @@ a:focus-visible {
   min-height: 245px;
 }
 
+.activity-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem 2rem;
+  align-items: center;
+  margin-top: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  background: var(--paper);
+}
+
+.activity-actions h2,
+.activity-actions p {
+  margin: 0;
+}
+
+.activity-actions h2 {
+  color: var(--forest);
+  font-size: 1.1rem;
+}
+
+.activity-actions p {
+  margin-top: 0.25rem;
+  color: var(--muted);
+}
+
+.activity-action-buttons,
+.dialog-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.secondary-action,
+.danger-action,
+.dialog-actions button {
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  color: var(--forest);
+  background: #fff;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.danger-action {
+  border-color: #d7a798;
+  color: #8a2c18;
+}
+
+.danger-action.solid {
+  border-color: #8a2c18;
+  color: #fff;
+  background: #8a2c18;
+}
+
+.secondary-action:disabled,
+.danger-action:disabled,
+.dialog-actions button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.activity-actions .action-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #8a2c18;
+  font-weight: 700;
+}
+
+.dialog-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(8 24 18 / 65%);
+}
+
+.delete-dialog {
+  width: min(100%, 560px);
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  border-radius: 1.5rem;
+  background: var(--paper);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 25%);
+}
+
+.delete-dialog h2 {
+  margin: 0;
+  color: var(--forest);
+  font-size: 1.65rem;
+}
+
+.delete-dialog > p:not(.eyebrow),
+.delete-dialog li {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.delete-dialog ul {
+  margin: 1rem 0 1.5rem;
+  padding-left: 1.25rem;
+}
+
+.dialog-actions {
+  justify-content: flex-end;
+}
+
 .quality-panel,
 .series-panel,
 .detail-panel {
@@ -847,6 +958,16 @@ a:focus-visible {
 
   .quality-panel li {
     grid-template-columns: 1fr;
+  }
+
+  .activity-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-action-buttons,
+  .dialog-actions {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .lap-list li {

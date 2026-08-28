@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Kairos.Application.ActivityImports;
 using Kairos.Domain.Activities;
 
@@ -14,6 +15,8 @@ public static class ActivityEndpoints
             .MapPost("/api/activity-imports/fit/{id:guid}/import", ImportAsync)
             .RequireAuthorization();
         endpoints.MapGet("/api/activities/{id:guid}", FindAsync).RequireAuthorization();
+        endpoints.MapGet("/api/activities/{id:guid}/export", ExportAsync).RequireAuthorization();
+        endpoints.MapDelete("/api/activities/{id:guid}", DeleteAsync).RequireAuthorization();
         endpoints.MapGet("/api/activities", ListAsync).RequireAuthorization();
         return endpoints;
     }
@@ -90,6 +93,64 @@ public static class ActivityEndpoints
 
         var activity = await service.FindAsync(id, ownerSubject, cancellationToken);
         return activity is null ? Results.NotFound() : Results.Ok(ToResponse(activity));
+    }
+
+    private static async Task<IResult> ExportAsync(
+        Guid id,
+        ClaimsPrincipal user,
+        FitActivityImportService service,
+        CancellationToken cancellationToken
+    )
+    {
+        var ownerSubject = user.FindFirstValue("sub");
+        if (string.IsNullOrWhiteSpace(ownerSubject))
+        {
+            return Results.Forbid();
+        }
+
+        var activity = await service.FindForExportAsync(
+            id,
+            ownerSubject,
+            cancellationToken
+        );
+        if (activity is null)
+        {
+            return Results.NotFound();
+        }
+
+        var document = new
+        {
+            schemaVersion = 1,
+            exportedAtUtc = DateTimeOffset.UtcNow,
+            activity = ToResponse(activity),
+        };
+        return Results.File(
+            JsonSerializer.SerializeToUtf8Bytes(document, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
+            }),
+            "application/json",
+            $"kairos-activity-{id}.json"
+        );
+    }
+
+    private static async Task<IResult> DeleteAsync(
+        Guid id,
+        ClaimsPrincipal user,
+        FitActivityImportService service,
+        CancellationToken cancellationToken
+    )
+    {
+        var ownerSubject = user.FindFirstValue("sub");
+        if (string.IsNullOrWhiteSpace(ownerSubject))
+        {
+            return Results.Forbid();
+        }
+
+        return await service.DeleteAsync(id, ownerSubject, cancellationToken)
+            ? Results.NoContent()
+            : Results.NotFound();
     }
 
     private static object ToResponse(Activity activity) =>

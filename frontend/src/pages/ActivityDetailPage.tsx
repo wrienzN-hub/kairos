@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import {
   type ActivityDetail,
   type ActivityMetric,
+  deleteActivity,
+  exportActivity,
   getActivity,
 } from "../api/activities";
 import { useAuthentication } from "../auth/authentication-state";
@@ -41,9 +43,15 @@ function metricValue(metric: ActivityMetric) {
 
 export function ActivityDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const authentication = useAuthentication();
   const [activity, setActivity] = useState<ActivityDetail | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
+  const [showDelete, setShowDelete] = useState(false);
+  const [action, setAction] = useState<"idle" | "exporting" | "deleting">(
+    "idle",
+  );
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     await Promise.resolve();
@@ -61,6 +69,42 @@ export function ActivityDetailPage() {
       setState("error");
     }
   }, [authentication, id]);
+
+  const handleExport = async () => {
+    if (!id) return;
+    setAction("exporting");
+    setActionError(null);
+    try {
+      const token = await authentication.getAccessToken();
+      if (!token) throw new Error("Missing access token.");
+      const exported = await exportActivity(id, token);
+      const url = URL.createObjectURL(exported.blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = exported.fileName;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setActionError("Der Export konnte nicht erstellt werden.");
+    } finally {
+      setAction("idle");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    setAction("deleting");
+    setActionError(null);
+    try {
+      const token = await authentication.getAccessToken();
+      if (!token) throw new Error("Missing access token.");
+      await deleteActivity(id, token);
+      navigate("/activities", { replace: true });
+    } catch {
+      setAction("idle");
+      setActionError("Die Aktivität konnte nicht gelöscht werden.");
+    }
+  };
 
   useEffect(() => {
     const timeout = window.setTimeout(() => void load(), 0);
@@ -126,6 +170,38 @@ export function ActivityDetailPage() {
               ? "Eingeschränkt"
               : "Prüfung nötig"}
         </span>
+      </section>
+
+      <section className="activity-actions" aria-label="Daten verwalten">
+        <div>
+          <h2>Deine Daten</h2>
+          <p>Exportiere alle normalisierten Werte oder lösche den Import.</p>
+        </div>
+        <div className="activity-action-buttons">
+          <button
+            className="secondary-action"
+            disabled={action !== "idle"}
+            onClick={() => void handleExport()}
+            type="button"
+          >
+            {action === "exporting"
+              ? "Export wird erstellt …"
+              : "JSON exportieren"}
+          </button>
+          <button
+            className="danger-action"
+            disabled={action !== "idle"}
+            onClick={() => setShowDelete(true)}
+            type="button"
+          >
+            Aktivität löschen
+          </button>
+        </div>
+        {actionError && (
+          <p className="action-error" role="alert">
+            {actionError}
+          </p>
+        )}
       </section>
 
       {activity.quality.findings.length > 0 && (
@@ -250,6 +326,50 @@ export function ActivityDetailPage() {
           </div>
         )}
       </section>
+
+      {showDelete && (
+        <div className="dialog-backdrop" role="presentation">
+          <section
+            aria-describedby="delete-description"
+            aria-labelledby="delete-title"
+            aria-modal="true"
+            className="delete-dialog"
+            role="dialog"
+          >
+            <p className="eyebrow">Unwiderruflich</p>
+            <h2 id="delete-title">Aktivität wirklich löschen?</h2>
+            <p id="delete-description">
+              Folgende Daten werden dauerhaft aus Kairos entfernt:
+            </p>
+            <ul>
+              <li>die normalisierte Aktivität</li>
+              <li>{activity.samples.length} Messpunkte</li>
+              <li>{activity.segments.length} Laps und Abschnitte</li>
+              <li>die ursprüngliche FIT-Datei</li>
+              <li>alle daraus abgeleiteten Analysewerte</li>
+            </ul>
+            <div className="dialog-actions">
+              <button
+                disabled={action === "deleting"}
+                onClick={() => setShowDelete(false)}
+                type="button"
+              >
+                Abbrechen
+              </button>
+              <button
+                className="danger-action solid"
+                disabled={action === "deleting"}
+                onClick={() => void handleDelete()}
+                type="button"
+              >
+                {action === "deleting"
+                  ? "Wird gelöscht …"
+                  : "Endgültig löschen"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </main>
   );
 }
