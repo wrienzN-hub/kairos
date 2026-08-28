@@ -76,7 +76,8 @@ public sealed class ActivityPersistenceTests
         var service = new FitActivityImportService(
             uploadStore,
             new GarminFitActivityParser(),
-            activityStore
+            activityStore,
+            new Kairos.Application.Activities.ActivityQualityEvaluator()
         );
 
         var receipt = await service.ImportAsync(
@@ -127,6 +128,45 @@ public sealed class ActivityPersistenceTests
 
         Assert.Empty(context.Activities);
         Assert.Empty(context.FitUploads.Where(value => value.Status == "imported"));
+    }
+
+    [Fact]
+    public async Task Reimporting_same_content_returns_existing_activity_without_duplicate_load()
+    {
+        var options = Options("activity-duplicate");
+        await using var context = new KairosDbContext(options);
+        var uploadStore = new EfFitUploadStore(context);
+        var activityStore = new EfActivityStore(context);
+        var service = new FitActivityImportService(
+            uploadStore,
+            new GarminFitActivityParser(),
+            activityStore,
+            new Kairos.Application.Activities.ActivityQualityEvaluator()
+        );
+        var firstUpload = Upload("minimal-cycling.fit", "athlete-123");
+        var secondUpload = firstUpload with { Id = Guid.NewGuid() };
+        await uploadStore.AddAsync(firstUpload, CancellationToken.None);
+        var firstReceipt = await service.ImportAsync(
+            firstUpload.Id,
+            firstUpload.OwnerSubject,
+            CancellationToken.None
+        );
+        await uploadStore.AddAsync(secondUpload, CancellationToken.None);
+
+        var duplicateReceipt = await service.ImportAsync(
+            secondUpload.Id,
+            secondUpload.OwnerSubject,
+            CancellationToken.None
+        );
+
+        Assert.Equal("imported", firstReceipt.Status);
+        Assert.Equal("duplicate", duplicateReceipt.Status);
+        Assert.Equal(firstReceipt.Id, duplicateReceipt.Id);
+        Assert.Single(context.Activities);
+        Assert.Equal(
+            "duplicate",
+            (await context.FitUploads.SingleAsync(value => value.Id == secondUpload.Id)).Status
+        );
     }
 
     private static DbContextOptions<KairosDbContext> Options(string prefix) =>

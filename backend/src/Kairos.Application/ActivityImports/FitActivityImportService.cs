@@ -10,6 +10,8 @@ public sealed record ActivityImportReceipt(
     DateTimeOffset EndUtc,
     int SampleCount,
     int SegmentCount,
+    string AnalysisStatus,
+    int QualityFindingCount,
     string Status
 );
 
@@ -21,7 +23,8 @@ public sealed class ActivityImportException(string code, string message) : Excep
 public sealed class FitActivityImportService(
     IFitUploadStore uploadStore,
     IFitActivityParser parser,
-    IActivityStore activityStore
+    IActivityStore activityStore,
+    ActivityQualityEvaluator qualityEvaluator
 )
 {
     public async Task<ActivityImportReceipt> ImportAsync(
@@ -45,16 +48,34 @@ public sealed class FitActivityImportService(
             );
         }
 
+        var existing = await activityStore.FindBySourceHashAsync(
+            ownerSubject,
+            upload.Sha256,
+            cancellationToken
+        );
+        if (existing is not null)
+        {
+            await uploadStore.SetStatusAsync(
+                upload.Id,
+                ownerSubject,
+                "duplicate",
+                cancellationToken
+            );
+            return ToReceipt(existing, "duplicate");
+        }
+
         Activity activity;
         try
         {
-            activity = parser.Parse(
-                new FitActivityFile(
-                    upload.Id,
-                    upload.OriginalFileName,
-                    upload.Sha256,
-                    upload.UploadedAtUtc,
-                    upload.Content
+            activity = qualityEvaluator.Evaluate(
+                parser.Parse(
+                    new FitActivityFile(
+                        upload.Id,
+                        upload.OriginalFileName,
+                        upload.Sha256,
+                        upload.UploadedAtUtc,
+                        upload.Content
+                    )
                 )
             );
         }
@@ -70,16 +91,21 @@ public sealed class FitActivityImportService(
             cancellationToken
         );
 
-        return new ActivityImportReceipt(
+        return ToReceipt(activity, "imported");
+    }
+
+    private static ActivityImportReceipt ToReceipt(Activity activity, string status) =>
+        new(
             activity.Id,
             activity.Type.Code,
             activity.TimeRange.Start.InstantUtc,
             activity.TimeRange.End.InstantUtc,
             activity.Samples.Count,
             activity.Segments.Count,
-            "imported"
+            activity.Quality.AnalysisStatus,
+            activity.Quality.Findings.Count,
+            status
         );
-    }
 
     public Task<Activity?> FindAsync(
         Guid id,

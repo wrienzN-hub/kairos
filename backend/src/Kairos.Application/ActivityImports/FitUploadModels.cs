@@ -45,4 +45,11 @@ public interface IFitUploadStore
         string ownerSubject,
         CancellationToken cancellationToken
     );
+
+    Task SetStatusAsync(
+        Guid id,
+        string ownerSubject,
+        string status,
+        CancellationToken cancellationToken
+    );
 }

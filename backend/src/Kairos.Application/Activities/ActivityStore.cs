@@ -16,4 +16,10 @@ public interface IActivityStore
         string ownerSubject,
         CancellationToken cancellationToken
     );
+
+    Task<Activity?> FindBySourceHashAsync(
+        string ownerSubject,
+        string contentHashSha256,
+        CancellationToken cancellationToken
+    );
 }

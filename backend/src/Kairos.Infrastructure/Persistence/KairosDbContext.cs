@@ -84,6 +84,9 @@ public sealed class KairosDbContext(DbContextOptions<KairosDbContext> options)
         activity.Property(value => value.ImportedAtUtc).HasColumnName("imported_at_utc");
         activity.Property(value => value.Document).HasColumnName("document").HasColumnType("jsonb");
         activity.HasIndex(value => value.SourceUploadId).IsUnique();
+        activity
+            .HasIndex(value => new { value.OwnerSubject, value.ContentHashSha256 })
+            .IsUnique();
         activity.HasIndex(value => new { value.OwnerSubject, value.StartUtc });
         activity
             .HasOne<StoredFitUpload>()

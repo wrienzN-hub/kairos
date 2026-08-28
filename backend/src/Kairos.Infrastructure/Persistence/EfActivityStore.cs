@@ -65,4 +65,23 @@ public sealed class EfActivityStore(KairosDbContext dbContext) : IActivityStore
 
         return document is null ? null : ActivityDocumentMapper.Deserialize(document);
     }
+
+    public async Task<Activity?> FindBySourceHashAsync(
+        string ownerSubject,
+        string contentHashSha256,
+        CancellationToken cancellationToken
+    )
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(ownerSubject);
+        ArgumentException.ThrowIfNullOrWhiteSpace(contentHashSha256);
+        var document = await dbContext
+            .Activities.AsNoTracking()
+            .Where(activity =>
+                activity.OwnerSubject == ownerSubject
+                && activity.ContentHashSha256 == contentHashSha256
+            )
+            .Select(activity => activity.Document)
+            .SingleOrDefaultAsync(cancellationToken);
+        return document is null ? null : ActivityDocumentMapper.Deserialize(document);
+    }
 }

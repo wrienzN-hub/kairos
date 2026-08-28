@@ -37,7 +37,9 @@ public static class ActivityEndpoints
                 ownerSubject,
                 cancellationToken
             );
-            return Results.Created($"/api/activities/{receipt.Id}", receipt);
+            return receipt.Status == "duplicate"
+                ? Results.Ok(receipt)
+                : Results.Created($"/api/activities/{receipt.Id}", receipt);
         }
         catch (ActivityImportException exception)
         {
@@ -108,13 +110,18 @@ public static class ActivityEndpoints
                 },
                 summary = segment.Summary.Metrics.Select(ToMetric),
             }),
-            quality = activity.Quality.Findings.Select(finding => new
+            quality = new
             {
-                finding.Code,
-                severity = finding.Severity.ToString().ToLowerInvariant(),
-                finding.Message,
-                finding.AffectedMetricCodes,
-            }),
+                analysisStatus = activity.Quality.AnalysisStatus,
+                activity.Quality.IsAnalysisRestricted,
+                findings = activity.Quality.Findings.Select(finding => new
+                {
+                    finding.Code,
+                    severity = finding.Severity.ToString().ToLowerInvariant(),
+                    finding.Message,
+                    finding.AffectedMetricCodes,
+                }),
+            },
         };
 
     private static object ToTimestamp(ActivityTimestamp timestamp) =>
