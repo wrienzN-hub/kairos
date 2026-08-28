@@ -82,6 +82,15 @@ public sealed class KairosDbContext(DbContextOptions<KairosDbContext> options)
             .HasMaxLength(64)
             .IsFixedLength();
         activity.Property(value => value.ImportedAtUtc).HasColumnName("imported_at_utc");
+        activity
+            .Property(value => value.DistanceMeters)
+            .HasColumnName("distance_meters")
+            .HasPrecision(14, 3);
+        activity
+            .Property(value => value.AnalysisStatus)
+            .HasColumnName("analysis_status")
+            .HasMaxLength(32)
+            .IsRequired();
         activity.Property(value => value.Document).HasColumnName("document").HasColumnType("jsonb");
         activity.HasIndex(value => value.SourceUploadId).IsUnique();
         activity

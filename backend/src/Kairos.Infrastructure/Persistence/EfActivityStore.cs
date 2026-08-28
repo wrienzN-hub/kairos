@@ -40,6 +40,8 @@ public sealed class EfActivityStore(KairosDbContext dbContext) : IActivityStore
                 OriginalFileName = activity.Source.OriginalFileName,
                 ContentHashSha256 = activity.Source.ContentHashSha256,
                 ImportedAtUtc = activity.Source.ImportedAtUtc,
+                DistanceMeters = activity.Summary.Find("distance")?.Value,
+                AnalysisStatus = activity.Quality.AnalysisStatus,
                 Document = ActivityDocumentMapper.Serialize(activity),
             }
         );
@@ -83,5 +85,29 @@ public sealed class EfActivityStore(KairosDbContext dbContext) : IActivityStore
             .Select(activity => activity.Document)
             .SingleOrDefaultAsync(cancellationToken);
         return document is null ? null : ActivityDocumentMapper.Deserialize(document);
+    }
+
+    public async Task<IReadOnlyList<ActivityListItem>> ListAsync(
+        string ownerSubject,
+        CancellationToken cancellationToken
+    )
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(ownerSubject);
+        return await dbContext
+            .Activities.AsNoTracking()
+            .Where(activity => activity.OwnerSubject == ownerSubject)
+            .OrderByDescending(activity => activity.StartUtc)
+            .Take(100)
+            .Select(activity => new ActivityListItem(
+                activity.Id,
+                activity.ActivityType,
+                activity.StartUtc,
+                activity.EndUtc,
+                activity.DistanceMeters,
+                activity.AnalysisStatus,
+                activity.OriginalFileName,
+                activity.SourceProvider
+            ))
+            .ToArrayAsync(cancellationToken);
     }
 }

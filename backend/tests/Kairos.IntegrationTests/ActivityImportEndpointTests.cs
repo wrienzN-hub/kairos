@@ -139,6 +139,45 @@ public sealed class ActivityImportEndpointTests
         );
     }
 
+    [Fact]
+    public async Task Activity_overview_is_ordered_and_owner_scoped()
+    {
+        await using var factory = CreateFactory();
+        using var ownerClient = CreateClient(factory, "athlete-123");
+        using var olderUpload = Upload("valid-cycling.fit");
+        using var newerUpload = Upload("incomplete-cycling.fit");
+        var olderId = await UploadAndImport(ownerClient, olderUpload);
+        var newerId = await UploadAndImport(ownerClient, newerUpload);
+
+        var response = await ownerClient.GetAsync("/api/activities");
+        var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(2, body.RootElement.GetArrayLength());
+        Assert.Equal(newerId, body.RootElement[0].GetProperty("id").GetGuid());
+        Assert.Equal("limited", body.RootElement[0].GetProperty("analysisStatus").GetString());
+        Assert.Equal(4500m, body.RootElement[0].GetProperty("distanceMeters").GetDecimal());
+        Assert.Equal(olderId, body.RootElement[1].GetProperty("id").GetGuid());
+
+        using var otherClient = CreateClient(factory, "other-athlete");
+        var otherResponse = await otherClient.GetAsync("/api/activities");
+        var otherBody = JsonDocument.Parse(await otherResponse.Content.ReadAsStringAsync());
+        Assert.Empty(otherBody.RootElement.EnumerateArray());
+    }
+
+    private static async Task<Guid> UploadAndImport(
+        HttpClient client,
+        MultipartFormDataContent upload
+    )
+    {
+        var response = await client.PostAsync("/api/activity-imports/fit", upload);
+        var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var id = body.RootElement.GetProperty("id").GetGuid();
+        var import = await client.PostAsync($"/api/activity-imports/fit/{id}/import", null);
+        Assert.Equal(HttpStatusCode.Created, import.StatusCode);
+        return id;
+    }
+
     private static WebApplicationFactory<Program> CreateFactory()
     {
         var databaseName = $"activity-api-{Guid.NewGuid():N}";

@@ -14,7 +14,25 @@ public static class ActivityEndpoints
             .MapPost("/api/activity-imports/fit/{id:guid}/import", ImportAsync)
             .RequireAuthorization();
         endpoints.MapGet("/api/activities/{id:guid}", FindAsync).RequireAuthorization();
+        endpoints.MapGet("/api/activities", ListAsync).RequireAuthorization();
         return endpoints;
+    }
+
+    private static async Task<IResult> ListAsync(
+        ClaimsPrincipal user,
+        FitActivityImportService service,
+        CancellationToken cancellationToken
+    )
+    {
+        var ownerSubject = user.FindFirstValue("sub");
+        if (string.IsNullOrWhiteSpace(ownerSubject))
+        {
+            return Results.Forbid();
+        }
+
+        return Results.Ok(
+            await service.ListAsync(ownerSubject, cancellationToken)
+        );
     }
 
     private static async Task<IResult> ImportAsync(
